@@ -3,48 +3,9 @@
 
 from board import Board
 import string
+import ui
+import sys
 
-#https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
-
-board = ["*"*8]*8
-print(board[1][1])
-
-def print_board(board, format, color_theme):#♔♚♕♛♗♝♘♞♙♟♖♜
-    pieces = board["pieces"]
-    colors = board["colors"]
-    pieces_ascii = {
-        "Pb" : "♟",
-        "Rb" : "♜",
-        "Nb" : "♞",
-        "Bb" : "♝",
-        "Qb" : "♛",
-        "Kb" : "♚",
-        "B" : "■",
-        "Pw" : "♙",
-        "Rw" : "♖",
-        "Nw" : "♘",
-        "Bw" : "♗",
-        "Qw" : "♕",
-        "Kw" : "♔",
-        "W" : "□"        
-    }
-    if format == "ascii":
-        #♔♚♕♛♗♝♘♞♙♟♖♜□■
-        for y, row in enumerate(pieces):
-            for x, char in enumerate(row):
-                if char == "*":
-                    print(f"|{pieces_ascii[colors[y][x]]}|", end="")
-                else:
-                    print(f"|{pieces_ascii[char]}|", end="")
-            print("\n")
-    if format == "roots":
-        for y, row in enumerate(pieces):
-            for x, char in enumerate(row):
-                if char == "*":
-                    print(f"|{colors[y][x]} |", end="")
-                else:
-                    print(f"|{char}|", end="")
-            print("\n")
 
 def create_board():
     board_pieces = []
@@ -105,12 +66,32 @@ def create_board():
     return board
 
 def new_game(print_format = "ascii"):
+    game = True
     board = create_board()
-    #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
-    print_board(board, print_format, color_theme = "Dark")
+    coordinates = False
+    color_theme = "light"
+    while game:
+        try:
+            #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
+            ui.print_board(board, print_format, coordinates, color_theme)
+            command = input("Command: ").lower()
 
+            if command == "exit" or command == "end":
+                game = False
+            if not coordinates and command.split(" ")[0] == "coordinates" or command == 'coordinates on':
+                coordinates = True
+            elif coordinates and command.split(" ")[0] == "coordinates" or command == 'coordinates off':
+                coordinates = False
+            if command == "surrender" or command == "/f":
+                win = False
+                game = False
+
+        except KeyboardInterrupt:
+            sys.exit(0)
 new_game("ascii")
+ 
 
+"""
 def move_a_piece(board, old_loc, new_loc):
     vertical = {
         "a" : 0
@@ -153,3 +134,4 @@ print(*tab, sep="\n")
 cavalo(tab, [1, 2], [2, 4])
 
 print(*tab, sep="\n")
+"""
