@@ -1,24 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[393]:
-
-
 from board import Board
 import string
 
 #https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
 
-
-# In[394]:
-
-
 board = ["*"*8]*8
 print(board[1][1])
-
-
-# In[408]:
-
 
 def print_board(board, format, color_theme):#♔♚♕♛♗♝♘♞♙♟♖♜
     pieces = board["pieces"]
@@ -119,17 +108,8 @@ def new_game(print_format = "ascii"):
     board = create_board()
     #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
     print_board(board, print_format, color_theme = "Dark")
-    
-
-
-# In[410]:
-
 
 new_game("ascii")
-
-
-# In[397]:
-
 
 def move_a_piece(board, old_loc, new_loc):
     vertical = {
@@ -151,15 +131,7 @@ def move_a_piece(board, old_loc, new_loc):
     old_position = "*"
     return board
 
-
-# In[33]:
-
-
 move_a_piece(board, "b2", "b4")
-
-
-# In[287]:
-
 
 def cavalo(tab, old_position ,new_position):
     xdiference = new_position[0] - old_position[0]
@@ -174,27 +146,10 @@ def cavalo(tab, old_position ,new_position):
         print("movimento invalido")
 
 
-# In[288]:
-
-
 tab = [[0,0,0,0,0], [0,0,1,0,0], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]]
 print(*tab, sep="\n")
 
 
-# In[290]:
-
-
 cavalo(tab, [1, 2], [2, 4])
 
-
-# In[260]:
-
-
 print(*tab, sep="\n")
-
-
-# In[ ]:
-
-
-
-
