@@ -77,10 +77,7 @@ def move_command(command):
         return False
 
 
-def move_piece(positions, board):
-    old_position = positions[0]
-    new_position = positions[1]
-
+def move_piece(locations, board):
     columns = {
         "a" : 0,
         "b" : 1,
@@ -91,10 +88,11 @@ def move_piece(positions, board):
         "g" : 6,
         "h" : 7
     }
-    for x in positions
-        for y in x:
-            
-    
+    positions = []
+    for index, location in enumerate(locations):
+        char = list(location)
+        positions.append([columns[char[0]], abs(int(char[1])-8)])
+    print(positions)  
 
 
 def new_game(print_format = "ascii"):
@@ -103,7 +101,7 @@ def new_game(print_format = "ascii"):
     coordinates = True
     color_theme = "light"
     while game:
-        os.system('cls' if os.name == 'nt' else 'clear')
+        #os.system('cls' if os.name == 'nt' else 'clear')
         try:
             #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
             ui.print_board(board, print_format, coordinates, color_theme)
