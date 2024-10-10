@@ -68,6 +68,7 @@ def create_board():
 def move_command(command):
     if command:
         try:
+            print(f"Commands: {command}")
             command.split(" ")
             positions = [command[0], command[-1]]
             return positions
@@ -89,8 +90,11 @@ def move_piece(locations, board):
         "h" : 7
     }
     positions = []
+    print(f"Locations: {locations}")
     for index, location in enumerate(locations):
+        print(location)
         char = list(location)
+        print(char[1])
         positions.append([columns[char[0]], abs(int(char[1])-8)])
     print(positions)  
 
