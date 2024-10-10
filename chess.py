@@ -4,8 +4,8 @@
 from board import Board
 import string
 import ui
+import os
 import sys
-
 
 def create_board():
     board_pieces = []
@@ -65,32 +65,79 @@ def create_board():
         }
     return board
 
+def move_command(command):
+    if command:
+        try:
+            command.split(" ")
+            positions = [command[0], command[-1]]
+            return positions
+        except Exception as e:
+            return False
+    else:
+        return False
+
+
+def move_piece(positions, board):
+    old_position = positions[0]
+    new_position = positions[1]
+
+    columns = {
+        "a" : 0,
+        "b" : 1,
+        "c" : 2,
+        "d" : 3,
+        "e" : 4,
+        "f" : 5,
+        "g" : 6,
+        "h" : 7
+    }
+    for x in positions
+        for y in x:
+            
+    
+
+
 def new_game(print_format = "ascii"):
     game = True
     board = create_board()
-    coordinates = False
+    coordinates = True
     color_theme = "light"
     while game:
+        os.system('cls' if os.name == 'nt' else 'clear')
         try:
             #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
             ui.print_board(board, print_format, coordinates, color_theme)
             command = input("Command: ").lower()
+            finished = True
 
             if command == "exit" or command == "end":
+                finished = False
                 game = False
-            if not coordinates and command.split(" ")[0] == "coordinates" or command == 'coordinates on':
+            elif not coordinates and command.split(" ")[0] == "coordinates" or command == 'coordinates on':
                 coordinates = True
             elif coordinates and command.split(" ")[0] == "coordinates" or command == 'coordinates off':
                 coordinates = False
-            if command == "surrender" or command == "/f":
+            elif command == "surrender" or command == "/f":
                 win = False
                 game = False
+            else:
+                positions = move_command(command)
+                if positions:
+                    move_piece(positions, board)
+                else:
+                    print("Command invalid")
+                    continue
 
         except KeyboardInterrupt:
+            print("\n      Match aborted")
             sys.exit(0)
-new_game("ascii")
- 
-
+    if finished:
+        if win:
+            ui.u_win()
+        else: 
+            ui.u_lose()
+    else:
+        print("Match aborted")
 """
 def move_a_piece(board, old_loc, new_loc):
     vertical = {
@@ -135,3 +182,39 @@ cavalo(tab, [1, 2], [2, 4])
 
 print(*tab, sep="\n")
 """
+
+
+#Start
+
+def options_menu():
+    choice = input("1. Dificulty\n2. Sound\n3. Coordinates\n4. Board\n5. Return")
+    match choice:
+        case 1:
+            new_game("ascii")
+        case 2:
+            options_menu()
+        case 3:
+            sys.exit(0)
+
+def menu():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    ui.chess_logo()
+    try: 
+        choice = input("\n\n            1. New Game\n            2. Options\n            3. Exit\n").strip()
+        print(f"a{choice}a")
+        try:
+           choice = int(choice)
+        except Exception as e:
+            raise RuntimeError("Não foi possivél converter pra número")
+        match choice:
+            case 1:
+                new_game()
+            case 2:
+                options_menu()
+            case 3:
+                sys.exit(0)
+    except KeyboardInterrupt:
+            sys.exit(0)
+
+
+menu()
