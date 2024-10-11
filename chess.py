@@ -68,8 +68,7 @@ def create_board():
 def move_command(command):
     if command:
         try:
-            print(f"Commands: {command}")
-            command.split(" ")
+            command = command.split(" ") #print(f"Commands: {command}")
             positions = [command[0], command[-1]]
             return positions
         except Exception as e:
@@ -90,13 +89,14 @@ def move_piece(locations, board):
         "h" : 7
     }
     positions = []
-    print(f"Locations: {locations}")
+    #print(f"Locations: {locations}")
     for index, location in enumerate(locations):
-        print(location)
+        #print(location)
         char = list(location)
-        print(char[1])
         positions.append([columns[char[0]], abs(int(char[1])-8)])
     print(positions)  
+
+
 
 
 def new_game(print_format = "ascii"):
@@ -163,6 +163,7 @@ def move_a_piece(board, old_loc, new_loc):
 
 move_a_piece(board, "b2", "b4")
 
+"""
 def cavalo(tab, old_position ,new_position):
     xdiference = new_position[0] - old_position[0]
     ydiference = new_position[1] - old_position[1]
@@ -220,3 +221,4 @@ def menu():
 
 
 menu()
+"""
