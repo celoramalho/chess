@@ -61,23 +61,45 @@ def create_board():
         board_colors.append(line_colors)
         board = {
             "pieces" : board_pieces,
-            "colors" : board_colors
+            "colors" : board_colors,
+            "pieces_captures": ""
         }
     return board
 
-def move_command(command):
-    if command:
-        try:
-            command = command.split(" ") #print(f"Commands: {command}")
-            positions = [command[0], command[-1]]
-            return positions
-        except Exception as e:
+def validate_move(old_position, new_position, board):
+    
+    old_column = old_position[0]
+    old_row = old_position[1]
+    new_column = new_position[0]
+    new_row = new_position[1]
+    piece = board["pieces"][old_row][old_column]
+    piece_type = list(piece)[0]
+    print(f"Piece: {piece}\nPiece type: {piece_type}")
+    new_square = board["pieces"][new_row][new_column]
+    column_difference = old_column - new_column
+    row_difference = old_row - new_row
+    print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nRow type: {type(old_row)}\nPiece: {piece}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
+
+    if (piece_type == 'N'):
+        soma = abs(column_difference) + abs(row_difference)
+        if (soma == 3 and column_difference != 0 and row_difference != 0):
+            return True
+        else:
             return False
-    else:
-        return False
 
+    if (piece_type == 'P'):
+        print("Peão")
+        pawn_capturing = (row_difference == 1 and column_difference == 1 and new_square != "*")
+        pawn_move = (row_difference == 1 and column_difference == 0 and new_square == "*")
+        pawn_first_move = (row_difference == 2 and column_difference == 0 and new_square == "*" and old_row == 1 or old_row == 6)
+        pawn_only_foward = ((piece == "Pw" and column_difference <= 0) or (piece == "Pb" and column_difference >= 0))
+        if ((pawn_move or pawn_capturing or pawn_first_move) and pawn_only_foward):
+            print("Uai")
+            return True
+        else:
+            return False
 
-def move_piece(locations, board):
+def move_command(command, board):
     columns = {
         "a" : 0,
         "b" : 1,
@@ -88,16 +110,43 @@ def move_piece(locations, board):
         "g" : 6,
         "h" : 7
     }
+    if command:
+        try:
+            command = command.split(" ") #print(f"Commands: {command}")
+            locations = [command[0], command[-1]]
+        except Exception as e:
+            return False
+    else:
+        return False
     positions = []
     #print(f"Locations: {locations}")
     for index, location in enumerate(locations):
-        #print(location)
-        char = list(location)
-        positions.append([columns[char[0]], abs(int(char[1])-8)])
-    print(positions)  
+        try:
+            #print(location)
+            char = list(location)
+            positions.append([columns[char[0]], abs(int(char[1])-8)])
+        except Exception as e:
+            return False
+    
 
+    old_position = positions[0]
+    new_position = positions[1]
+    old_column = old_position[0]
+    old_row = old_position[1]
+    new_column = new_position[0]
+    new_row = new_position[1]
 
-
+    if validate_move(old_position, new_position, board):
+        square_to_move = board["pieces"][new_row][new_column]
+        if square_to_move == "*":     
+            pass
+        else:
+            board["pieces_captured"].append(square_to_move)
+        board["pieces"][new_row][new_column] = board["pieces"][old_row][old_column]
+        board["pieces"][old_row][old_column] = "*"
+        return board
+    else:
+        return False
 
 def new_game(print_format = "ascii"):
     game = True
@@ -123,9 +172,9 @@ def new_game(print_format = "ascii"):
                 win = False
                 game = False
             else:
-                positions = move_command(command)
-                if positions:
-                    move_piece(positions, board)
+                new_board = move_command(command, board)
+                if new_board:
+                    board = new_board
                 else:
                     print("Command invalid")
                     continue
@@ -164,31 +213,21 @@ def move_a_piece(board, old_loc, new_loc):
 move_a_piece(board, "b2", "b4")
 
 """
-def cavalo(tab, old_position ,new_position):
-    xdiference = new_position[0] - old_position[0]
-    ydiference = new_position[1] - old_position[1]
-    soma = abs(xdiference) + abs(ydiference)
-
-    if (soma == 3 and xdiference != 0 and ydiference != 0):
-        tab[new_position[0]][new_position[1]] = tab[old_position[0]][old_position[1]]
-        tab[old_position[0]][old_position[1]] = 0
-        print(*tab, sep="\n")
-    else:
-        print("movimento invalido")
 
 
-tab = [[0,0,0,0,0], [0,0,1,0,0], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]]
-print(*tab, sep="\n")
+
+#tab = [[0,0,0,0,0], [0,0,1,0,0], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]]
+#print(*tab, sep="\n")
 
 
-cavalo(tab, [1, 2], [2, 4])
+#cavalo(tab, [1, 2], [2, 4])
 
-print(*tab, sep="\n")
+#print(*tab, sep="\n")
 """
 
 
 #Start
-
+"""
 def options_menu():
     choice = input("1. Dificulty\n2. Sound\n3. Coordinates\n4. Board\n5. Return")
     match choice:
@@ -221,4 +260,3 @@ def menu():
 
 
 menu()
-"""
