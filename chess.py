@@ -81,6 +81,7 @@ def validate_move(old_position, new_position, board):
     row_difference = old_row - new_row
     print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nRow type: {type(old_row)}\nPiece: {piece}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
     print(new_square)
+
     if (piece_type == 'N'):
         soma = abs(column_difference) + abs(row_difference)
         if (soma == 3 and column_difference != 0 and row_difference != 0):
@@ -98,6 +99,20 @@ def validate_move(old_position, new_position, board):
             return True
         else:
             return False
+    if (piece_type == 'B'):
+        if (abs(column_difference) == abs(row_difference)):
+            return True
+        else:
+            return False
+        
+    if (piece_type == 'R'):
+        
+        if (abs(column_difference) == 0 and abs(row_difference) != 0) or (abs(row_difference) == 0 and abs(column_difference) != 0):
+            return True
+        else:
+            return False
+
+
 
 def move_command(command, board):
     columns = {
