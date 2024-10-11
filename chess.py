@@ -59,10 +59,11 @@ def create_board():
                 line_pieces.append("*")
         board_pieces.append(line_pieces)
         board_colors.append(line_colors)
+        captured = []
         board = {
             "pieces" : board_pieces,
             "colors" : board_colors,
-            "pieces_captures": ""
+            "captured": captured
         }
     return board
 
@@ -79,7 +80,7 @@ def validate_move(old_position, new_position, board):
     column_difference = old_column - new_column
     row_difference = old_row - new_row
     print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nRow type: {type(old_row)}\nPiece: {piece}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
-
+    print(new_square)
     if (piece_type == 'N'):
         soma = abs(column_difference) + abs(row_difference)
         if (soma == 3 and column_difference != 0 and row_difference != 0):
@@ -89,12 +90,11 @@ def validate_move(old_position, new_position, board):
 
     if (piece_type == 'P'):
         print("Peão")
-        pawn_capturing = (row_difference == 1 and column_difference == 1 and new_square != "*")
-        pawn_move = (row_difference == 1 and column_difference == 0 and new_square == "*")
-        pawn_first_move = (row_difference == 2 and column_difference == 0 and new_square == "*" and old_row == 1 or old_row == 6)
-        pawn_only_foward = ((piece == "Pw" and column_difference <= 0) or (piece == "Pb" and column_difference >= 0))
+        pawn_capturing = (abs(row_difference) == 1 and abs(column_difference) == 1 and new_square != "*")
+        pawn_move = (abs(row_difference) == 1 and column_difference == 0 and new_square == "*")
+        pawn_first_move = (abs(row_difference) == 2 and column_difference == 0 and new_square == "*" and old_row == 1 or old_row == 6)
+        pawn_only_foward = ((piece == "Pb" and row_difference <= 0) or (piece == "Pw" and row_difference >= 0))
         if ((pawn_move or pawn_capturing or pawn_first_move) and pawn_only_foward):
-            print("Uai")
             return True
         else:
             return False
@@ -141,7 +141,7 @@ def move_command(command, board):
         if square_to_move == "*":     
             pass
         else:
-            board["pieces_captured"].append(square_to_move)
+            board["captured"].append(square_to_move)
         board["pieces"][new_row][new_column] = board["pieces"][old_row][old_column]
         board["pieces"][old_row][old_column] = "*"
         return board
@@ -153,11 +153,16 @@ def new_game(print_format = "ascii"):
     board = create_board()
     coordinates = True
     color_theme = "light"
+    invalid = False
     while game:
-        #os.system('cls' if os.name == 'nt' else 'clear')
+        os.system('cls' if os.name == 'nt' else 'clear')
         try:
             #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
             ui.print_board(board, print_format, coordinates, color_theme)
+            if invalid:
+                print("*Invalid input*")
+            else:
+                print("")
             command = input("Command: ").lower()
             finished = True
 
@@ -176,7 +181,7 @@ def new_game(print_format = "ascii"):
                 if new_board:
                     board = new_board
                 else:
-                    print("Command invalid")
+                    invalid = True
                     continue
 
         except KeyboardInterrupt:

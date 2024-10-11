@@ -23,9 +23,9 @@ def print_board(board, format, coordinates, color_theme):#♔♚♕♛♗♝♘�
         }
     if format == "ascii":
         #♔♚♕♛♗♝♘♞♙♟♖♜□■
-        border = "\n+---+---+---+---+---+---+---+---+"
+        border = "+---+---+---+---+---+---+---+---+"
         if coordinates:
-            coordinates_border = "\n+-a-+-b-+-c-+-d-+-e-+-f-+-g-+-h-+"
+            coordinates_border = "+-a-+-b-+-c-+-d-+-e-+-f-+-g-+-h-+"
             print(coordinates_border)
         else:
             coordinates_border = border
