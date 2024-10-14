@@ -259,7 +259,7 @@ def options_menu():
             sys.exit(0)
 
 def menu():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    #os.system('cls' if os.name == 'nt' else 'clear')
     ui.chess_logo()
     try: 
         choice = input("\n\n            1. New Game\n            2. Options\n            3. Exit\n").strip()
