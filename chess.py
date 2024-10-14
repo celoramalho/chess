@@ -79,9 +79,31 @@ def validate_move(old_position, new_position, board):
     new_square = board["pieces"][new_row][new_column]
     column_difference = old_column - new_column
     row_difference = old_row - new_row
+
+    
+
     print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nRow type: {type(old_row)}\nPiece: {piece}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
     print(new_square)
 
+
+    pieces_in_row_path = False
+    path_row_square = old_row
+    path_column_square = old_column
+
+    while path_row_square != new_row:
+        path_row_square -= int(row_difference / abs(row_difference))
+        print(f"Path row square: {path_row_square}")
+        position_path_row_square = board["pieces"][path_row_square][new_column]
+        print(position_path_row_square)
+        if position_path_row_square != "*":
+           pieces_in_row_path = True
+ 
+    while path_column_square != new_column:
+        path_column_square -= int(column_difference / abs(column_difference))
+        position_path_column_square = board["pieces"][new_row][path_column_square]
+        if position_path_column_square != "*":
+            pieces_in_column_path = True
+    
     if (piece_type == 'N'):
         soma = abs(column_difference) + abs(row_difference)
         if (soma == 3 and column_difference != 0 and row_difference != 0):
@@ -91,10 +113,12 @@ def validate_move(old_position, new_position, board):
 
     if (piece_type == 'P'):
         print("Peão")
+        print(abs(column_difference))
         pawn_capturing = (abs(row_difference) == 1 and abs(column_difference) == 1 and new_square != "*")
         pawn_move = (abs(row_difference) == 1 and column_difference == 0 and new_square == "*")
-        pawn_first_move = (abs(row_difference) == 2 and column_difference == 0 and new_square == "*" and old_row == 1 or old_row == 6)
+        pawn_first_move = ( not pieces_in_row_path and abs(row_difference) == 2 and column_difference == 0 and new_square == "*" and (old_row == 1 or old_row == 6))
         pawn_only_foward = ((piece == "Pb" and row_difference <= 0) or (piece == "Pw" and row_difference >= 0))
+        print(f"Pawn capturing: {pawn_capturing}\nPawn Move: {pawn_move}\nPawn First move: {pawn_first_move}\nPawn Only Foward: {pawn_only_foward}\nPosition Path Row Square: {pieces_in_row_path }")
         if ((pawn_move or pawn_capturing or pawn_first_move) and pawn_only_foward):
             return True
         else:
@@ -170,7 +194,7 @@ def new_game(print_format = "ascii"):
     color_theme = "light"
     invalid = False
     while game:
-        os.system('cls' if os.name == 'nt' else 'clear')
+        #os.system('cls' if os.name == 'nt' else 'clear')
         try:
             #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
             ui.print_board(board, print_format, coordinates, color_theme)

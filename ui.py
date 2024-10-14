@@ -39,9 +39,9 @@ def print_board(board, format, coordinates, color_theme):#♔♚♕♛♗♝♘�
                     print(f"|{sqr_color}{pieces_ascii[char]}{sqr_color}", end="")
                 if x == 7:
                     if coordinates:
-                        print(abs(8-y), end="")
+                        print(abs(8-y), end="\n")
                     else:
-                        print(f"|", end="")
+                        print(f"|", end="\n")
             if y == 7:
                 print(border)
             else:
