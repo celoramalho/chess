@@ -1,0 +1,16 @@
+class piece
+
+    move -> function
+    captured: 
+    color: 
+    
+    #function is captured
+
+    class pawn:
+        move 
+        first_move
+    class roots
+        move
+    class bishop
+
+    class queen

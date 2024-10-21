@@ -90,6 +90,10 @@ def validate_move(old_position, new_position, board):
     path_row_square = old_row
     path_column_square = old_column
 
+
+    if new_square[-1] == piece[-1]: #Collision, cant go to a oc
+        return False
+
     while path_row_square != new_row:
         path_row_square -= int(row_difference / abs(row_difference))
         print(f"Path row square: {path_row_square}")
@@ -219,6 +223,7 @@ def new_game(print_format = "ascii"):
                 new_board = move_command(command, board)
                 if new_board:
                     board = new_board
+                    invalid = False
                 else:
                     invalid = True
                     continue
