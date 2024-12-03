@@ -3,7 +3,9 @@
 
 import sys
 import random
+import os
 
+#========================UI=======================
 def print_board(board, format, coordinates, color_theme):#♔♚♕♛♗♝♘♞♙♟♖♜
     pieces = board["pieces"]
     colors = board["colors"]
@@ -67,16 +69,16 @@ def u_win():
     print("        ::::::    ")
     print("          ::      ")
     print("         _()_     ")
-    print("       _/____\_   ")
-    print("       \      /   ")
-    print("        \____/    ")
+    print("       _/____\\_   ")
+    print("       \\      /   ")
+    print("        \\____/    ")
     print("        (____)    ")
     print("         |  |     ")
     print("         |__|     ")
-    print("        /    \    ")
+    print("        /    \\    ")
     print("       (______)   ")
     print("      (________)  ")
-    print("      //_______\\  ")
+    print("      //_______\\\\  ")
     print("       YOU win!  ")
 
 def chess_logo_full():
@@ -101,7 +103,7 @@ def chess_logo():
     print("      ___     ,adPPYba, ,adPPYba,")
     print("     ((__)    I8[    \"\" I8[    \"\"")
     print("      |_|     `\"Y8ba,   `\"Y8ba,")
-    print("     //__\    aa    ]8I aa    ]8I")
+    print("     //__\\    aa    ]8I aa    ]8I")
     print("    ((____)   `\"YbbdP\"\' `\"YbbdP\"\'")
 
 
@@ -111,18 +113,20 @@ def u_lose():
     print("        ::::::    ")
     print("          ::      ")
     print("         _()_     ")
-    print("       _/____\_   ")
-    print("       \      /   ")
-    print("        \____/    ")
+    print("       _/____\\_   ")
+    print("       \\      /   ")
+    print("        \\____/    ")
     print("        (____)    ")
     print("         |  |     ")
     print("         |__|     ")
-    print("        /    \    ")
+    print("        /    \\    ")
     print("       (______)   ")
     print("      (________)  ")
-    print("      //_______\\\ ")
+    print("      //_______\\\\ ")
     print("       YOU LOSE!  ")
+#=================================================
 
+#=====================Board=======================
 def create_board():
     board_pieces = []
     board_colors = []
@@ -182,8 +186,11 @@ def create_board():
             "captured": captured
         }
     return board
+#==================================================
 
-def validate_move(old_position, new_position, board):
+
+#=====================Pieces=======================
+def validate_move(old_position, new_position, board, player_color):
     
     old_column = old_position[0]
     old_row = old_position[1]
@@ -199,17 +206,20 @@ def validate_move(old_position, new_position, board):
 
     new_square = board["pieces"][new_row][new_column]
 
+    print(f"{piece.lower()} endswith {(player_color[0].lower())}")
+    if not piece.lower().endswith(player_color[0].lower()):
+        return False
     
-
-    
-
-    print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nRow type: {type(old_row)}\nPiece: {piece}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
+    print("=====Piece Logs=====\n")
     print(f"Piece: {piece}\nPiece type: {piece_type}\nNew Square Piece: {new_square}")
+    print(f"\n=====Position Logs=====\n")
+    print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nOld Row type: {type(old_row)}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
 
     pieces_in_row_path = False
     pieces_in_column_path = False
     path_row_square = old_row
     path_column_square = old_column
+    pieces_in_diagonal_path = False
 
 
     if new_square[-1] == piece[-1]: #Collision: a piece cannot occupy a square already occupied by another piece of the same color.
@@ -228,6 +238,16 @@ def validate_move(old_position, new_position, board):
         position_path_column_square = board["pieces"][new_row][path_column_square]
         if position_path_column_square != "*":
             pieces_in_column_path = True
+    
+    path_row_square = old_row
+    path_column_square = old_column
+
+    while path_row_square != new_row and path_column_square != new_column:
+        path_column_square -= int(column_difference / abs(column_difference))
+        path_row_square -= int(row_difference / abs(row_difference))
+        position_path_diagonal_square = board["pieces"][path_row_square][path_column_square]
+        if position_path_diagonal_square != "*":
+            pieces_in_diagonal_path = True
     
     if (piece_type == 'N'):
         soma = abs(column_difference) + abs(row_difference)
@@ -249,7 +269,8 @@ def validate_move(old_position, new_position, board):
         else:
             return False
     if (piece_type == 'B'):
-        if (abs(column_difference) == abs(row_difference)):
+        move_in_diagonal = abs(column_difference) == abs(row_difference)
+        if move_in_diagonal and not pieces_in_diagonal_path:
             return True
         else:
             return False
@@ -276,7 +297,7 @@ def move_a_piece(board, old_position, new_position):
     board["pieces"][old_row][old_column] = "*"
     return board
 
-def move_command(command, board):
+def move_command(command, board, player_color):
     columns = {
         "a" : 0,
         "b" : 1,
@@ -309,25 +330,33 @@ def move_command(command, board):
     old_position = positions[0]
     new_position = positions[1]
 
-    if validate_move(old_position, new_position, board):
+    if validate_move(old_position, new_position, board, player_color):
         board = move_a_piece(board, old_position, new_position)
         return board
     else:
         return False
 
 
-def computer_make_a_move(board, dificulty):
+def computer_make_a_move(board, dificulty, player_color):
     if dificulty == "super-easy":
         random_old_position = [random.randint(0, 7) for _ in range(2)]
         random_new_position = [random.randint(0, 7) for _ in range(2)]
-        while not validate_move(old_position=random_old_position, new_position=random_new_position, board=board):
+
+        if player_color == "white":
+            computer_color = "black"
+        else:
+            computer_color = "white"
+
+        while True:
             random_old_position = [random.randint(0, 7) for _ in range(2)]
             random_new_position = [random.randint(0, 7) for _ in range(2)]
-            board = move_a_piece(old_position=random_old_position, new_position=random_new_position, board=board)
-            return board 
+            if validate_move(old_position=random_old_position, new_position=random_new_position, board=board, player_color=computer_color):
+                board = move_a_piece(old_position=random_old_position, new_position=random_new_position, board=board)
+                break
+        return board 
 
-
-def new_game(print_format = "ascii"):
+#=====================New Game=======================
+def new_game(print_format = "ascii", player_color = "white"):
     game = True
     board = create_board()
     coordinates = True
@@ -357,14 +386,14 @@ def new_game(print_format = "ascii"):
                 win = False
                 game = False
             else:
-                new_board = move_command(command, board)
+                new_board = move_command(command, board, player_color)
                 if new_board:
                     board = new_board
                     invalid = False
                 else:
                     invalid = True
                     continue
-            computer_make_a_move(board, dificulty)
+            computer_make_a_move(board, dificulty, player_color)
 
         except KeyboardInterrupt:
             print("\n      Match aborted")
@@ -415,18 +444,32 @@ move_a_piece(board, "b2", "b4")
 
 #Start
 """
+
+def choose_color_side():
+    choice = input("1. White\n2. Black\n3. Random")
+    match choice:
+        case 1:
+            player_color = ("white")
+        case 2:
+            player_color = ("black")
+        case 3:
+            player_color = random.choice(["white", "black"])
+        case _:
+            player_color = ("white")
+    return player_color
+
 def options_menu():
     choice = input("1. Dificulty\n2. Sound\n3. Coordinates\n4. Board\n5. Return")
     match choice:
         case 1:
-            new_game("ascii")
+            new_game("ascii", player_color=choose_color_side())
         case 2:
             options_menu()
         case 3:
-            sys.exit(0)
+            sys.exit(0)       
 
 def menu():
-    #os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
     chess_logo()
     try: 
         choice = input("\n\n            1. New Game\n            2. Options\n            3. Exit\n").strip()
@@ -437,13 +480,16 @@ def menu():
             raise RuntimeError("Não foi possivél converter pra número")
         match choice:
             case 1:
-                new_game()
+                player_color = choose_color_side()
+                new_game(player_color=player_color)
             case 2:
                 options_menu()
             case 3:
                 sys.exit(0)
     except KeyboardInterrupt:
             sys.exit(0)
+
+
 
 
 menu()
