@@ -4,6 +4,10 @@
 import sys
 import random
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='chess_match.log', encoding='utf-8', level=logging.DEBUG)
 
 #========================UI=======================
 def print_board(board, format, coordinates, color_theme):#♔♚♕♛♗♝♘♞♙♟♖♜
@@ -122,8 +126,24 @@ def u_lose():
     print("        /    \\    ")
     print("       (______)   ")
     print("      (________)  ")
+    print("      (_________\\\\ ")
+
+
+def select_color_ui():
+    print("          ::      ")
+    print("        ::::::    ")
+    print("          ::      ")
+    print("         _()_     ")
+    print("       _/____\\_   ")
+    print("       \\      /   ")
+    print("        \\____/    ")
+    print("        (____)    ")
+    print("         |  |     ")
+    print("         |__|     ")
+    print("        /    \\    ")
+    print("       (______)   ")
+    print("      (________)  ")
     print("      //_______\\\\ ")
-    print("       YOU LOSE!  ")
 #=================================================
 
 #=====================Board=======================
@@ -190,111 +210,126 @@ def create_board():
 
 
 #=====================Pieces=======================
-def validate_move(old_position, new_position, board, player_color):
+def validate_move(old_piece_position, new_piece_position, board, player_color):
+    piece_choosed_dont_even_exit = old_piece_position["row"] < 0 or old_piece_position["row"] > 7 or old_piece_position["column"] < 0 or old_piece_position["column"] > 7
+    piece_moved_to_outside_board = new_piece_position["row"] < 0 or new_piece_position["row"] > 7 or new_piece_position["column"] < 0 or new_piece_position["column"] > 7
     
-    old_column = old_position[0]
-    old_row = old_position[1]
-
-    new_column = new_position[0]
-    new_row = new_position[1]
-
-    column_difference = old_column - new_column
-    row_difference = old_row - new_row
-
-    piece = board["pieces"][old_row][old_column]
+    if piece_moved_to_outside_board or piece_choosed_dont_even_exit:
+        return False
+    
+    piece = board["pieces"][old_piece_position["row"]][old_piece_position["column"] ]
     piece_type = list(piece)[0]
+    piece_color = list(piece)[-1]
 
-    new_square = board["pieces"][new_row][new_column]
+    piece_moved_is_the_same_color_of_the_player = piece.lower().endswith(player_color[0].lower()) #Is realy your piece?
+    if piece_moved_is_the_same_color_of_the_player:
+        #old_column = old_position[0]
+        #old_row = old_position[1]
 
-    print(f"{piece.lower()} endswith {(player_color[0].lower())}")
-    if not piece.lower().endswith(player_color[0].lower()):
-        return False
-    
-    print("=====Piece Logs=====\n")
-    print(f"Piece: {piece}\nPiece type: {piece_type}\nNew Square Piece: {new_square}")
-    print(f"\n=====Position Logs=====\n")
-    print(f"Old column: {old_column}\nOld Row: {old_row}\nOld Column type: {type(old_column)}\nOld Row type: {type(old_row)}\nRow Difference: {row_difference}\nColumn Difference: {column_difference}\nNew Square: {new_square}")
+        #new_column = new_position[0]
+        #new_row = new_position[1]
 
-    pieces_in_row_path = False
-    pieces_in_column_path = False
-    path_row_square = old_row
-    path_column_square = old_column
-    pieces_in_diagonal_path = False
+        column_difference = old_piece_position["column"] - new_piece_position["column"]
+        row_difference = old_piece_position["row"] - new_piece_position["row"]
+        new_square = board["pieces"][new_piece_position["row"]][new_piece_position["column"]]
 
+        if new_square[-1] == piece[-1]: #Collision: a piece cannot occupy a square already occupied by another piece of the same color.
+            return False #Early Break
 
-    if new_square[-1] == piece[-1]: #Collision: a piece cannot occupy a square already occupied by another piece of the same color.
-        return False
+        column_in_path = old_piece_position["column"]
+        row_in_path = old_piece_position["row"]
+        free_diagonal_path = True
+        free_column_path = True
+        free_row_path = True
 
-    while path_row_square != new_row:
-        path_row_square -= int(row_difference / abs(row_difference))
-        print(f"Path row square: {path_row_square}")
-        position_path_row_square = board["pieces"][path_row_square][new_column]
-        print(position_path_row_square)
-        if position_path_row_square != "*":
-           pieces_in_row_path = True
- 
-    while path_column_square != new_column:
-        path_column_square -= int(column_difference / abs(column_difference))
-        position_path_column_square = board["pieces"][new_row][path_column_square]
-        if position_path_column_square != "*":
-            pieces_in_column_path = True
-    
-    path_row_square = old_row
-    path_column_square = old_column
+        while row_in_path != new_piece_position["row"] and column_in_path != new_piece_position["column"]:
+            if row_difference != 0:
+                row_in_path -= int(row_difference / abs(row_difference))
+                piece_row_path = board["pieces"][row_in_path][new_piece_position["column"]]
+                if piece_row_path != "*":
+                    free_row_path = False
+            
+            if column_difference != 0:
+                column_in_path -= int(column_difference / abs(column_difference))
+                piece_column_path = board["pieces"][old_piece_position["row"]][column_in_path]
+                if piece_column_path!= "*":
+                    free_column_path = False
 
-    while path_row_square != new_row and path_column_square != new_column:
-        path_column_square -= int(column_difference / abs(column_difference))
-        path_row_square -= int(row_difference / abs(row_difference))
-        position_path_diagonal_square = board["pieces"][path_row_square][path_column_square]
-        if position_path_diagonal_square != "*":
-            pieces_in_diagonal_path = True
-    
-    if (piece_type == 'N'):
-        soma = abs(column_difference) + abs(row_difference)
-        if (soma == 3 and column_difference != 0 and row_difference != 0):
-            return True
-        else:
-            return False
-
-    if (piece_type == 'P'):
-        print("Peão")
-        print(abs(column_difference))
-        pawn_capturing = (abs(row_difference) == 1 and abs(column_difference) == 1 and new_square != "*")
-        pawn_move = (abs(row_difference) == 1 and column_difference == 0 and new_square == "*")
-        pawn_first_move = ( not pieces_in_row_path and abs(row_difference) == 2 and column_difference == 0 and new_square == "*" and (old_row == 1 or old_row == 6))
-        pawn_only_foward = ((piece == "Pb" and row_difference <= 0) or (piece == "Pw" and row_difference >= 0))
-        print(f"Pawn capturing: {pawn_capturing}\nPawn Move: {pawn_move}\nPawn First move: {pawn_first_move}\nPawn Only Foward: {pawn_only_foward}\nPosition Path Row Square: {pieces_in_row_path }")
-        if ((pawn_move or pawn_capturing or pawn_first_move) and pawn_only_foward):
-            return True
-        else:
-            return False
-    if (piece_type == 'B'):
-        move_in_diagonal = abs(column_difference) == abs(row_difference)
-        if move_in_diagonal and not pieces_in_diagonal_path:
-            return True
-        else:
-            return False
+            if row_difference != 0 and column_difference != 0:
+                piece_diagonal_path = board["pieces"][row_in_path][column_in_path]
+                if piece_diagonal_path != "*":
+                    free_diagonal_path = False
         
-    if (piece_type == 'R'):
-        
-        if (abs(column_difference) == 0 and abs(row_difference) != 0 and pieces_in_row_path == False) or (abs(row_difference) == 0 and abs(column_difference) != 0 and pieces_in_column_path == False):
-            return True
-        else:
-            return False
+
+        logger.debug('=====Piece Information=====')
+        logger.debug(f"Piece: {piece}")
+        logger.debug(f"Piece type: {piece_type}")
+        logger.debug(f"Corrent Position: {old_piece_position}")
+        logger.debug(f"Position to move to: {new_piece_position}")
+        logger.debug(f"New Square Piece: {new_square}")
+        logger.debug(f"===========================")
+
+        logger.debug(f"=====Position Logs=====")
+        logger.debug(f"Column Difference Between Old Position and New Position: {column_difference}")
+        logger.debug(f"Row Difference Between Old Position and New Position: {row_difference}")
+        logger.debug(f"New Square: {new_square}")
+        logger.debug(f"===========================")
+
+        logger.debug(f"=====Path Logs=====")
+        logger.debug(f"Pieces in Row Path: {free_row_path}")
+        logger.debug(f"Pieces in Column Path: {free_column_path}")
+        logger.debug(f"Pieces in Diagonal Path: {free_diagonal_path}")
+        logger.debug(f"===========================")
+
+        if (piece_type == 'N'): #Knight
+            soma = abs(column_difference) + abs(row_difference)
+            if (soma == 3 and column_difference != 0 and row_difference != 0):
+                return True
+            else:
+                return False
+
+        if (piece_type == 'P'): #Pawn
+            pawn_capturing = (abs(row_difference) == 1 and abs(column_difference) == 1 and new_square != "*" and new_square[-1] != piece_color)
+            pawn_move = (abs(row_difference) == 1 and column_difference == 0 and new_square == "*")
+            pawn_first_move = (free_row_path and abs(row_difference) == 2 and column_difference == 0 and new_square == "*" and (old_piece_position["row"] == 1 or old_piece_position["row"]  == 6))
+            pawn_only_foward = ((piece == "Pb" and row_difference <= 0) or (piece == "Pw" and row_difference >= 0))
+            
+            logger.debug(f"======Pawn Information=====")
+            logger.debug(f"pawn_capturing: {pawn_capturing}")
+            logger.debug(f"pawn_move: {pawn_move}")
+            logger.debug(f"pawn_first_move: {pawn_first_move}")
+            logger.debug(f"pawn_only_foward: {pawn_only_foward}")
+            logger.debug(f"Position Path Row Square: {free_row_path}")
+            logger.debug(f"===========================")
+            
+            if ((pawn_move or pawn_capturing or pawn_first_move) and pawn_only_foward):
+                return True
+            else:
+                return False
+            
+        if (piece_type == 'B'): #Bishop
+            move_in_diagonal = abs(column_difference) == abs(row_difference)
+            if move_in_diagonal and free_diagonal_path:
+                return True
+            else:
+                return False
+            
+        if (piece_type == 'R'): #Rook
+            move_in_row_or_column = (abs(column_difference) == 0 != abs(row_difference) == 0)
+            if move_in_row_or_column and free_row_path and free_column_path:
+                return True
+            else:
+                return False
 
 def move_a_piece(board, old_position, new_position):
-    old_column = old_position[0]
-    old_row = old_position[1]
-    new_column = new_position[0]
-    new_row = new_position[1]
 
-    square_to_move = board["pieces"][new_row][new_column]
+    square_to_move = board["pieces"][new_position["row"]][new_position["column"]]
     if square_to_move == "*":     
         pass
     else:
         board["captured"].append(square_to_move)
-    board["pieces"][new_row][new_column] = board["pieces"][old_row][old_column]
-    board["pieces"][old_row][old_column] = "*"
+    board["pieces"][new_position["row"]][new_position["column"]] = board["pieces"][old_position["row"]][old_position["column"]]
+    board["pieces"][old_position["row"]][old_position["column"]] = "*"
     return board
 
 def move_command(command, board, player_color):
@@ -318,7 +353,7 @@ def move_command(command, board, player_color):
         return False
     positions = []
     #print(f"Locations: {locations}")
-    for index, location in enumerate(locations):
+    for location in locations:
         try:
             #print(location)
             char = list(location)
@@ -326,12 +361,23 @@ def move_command(command, board, player_color):
         except Exception as e:
             return False
     
+    """
+    old_column = old_position[0]
+    old_row = old_position[1]
+    new_column = new_position[0]
+    new_row = new_position[1]
+    """
+    old_piece_position = {
+    "column": positions[0][0],
+    "row": positions[0][1]
+    }
+    new_piece_position = {
+        "column": positions[1][0],
+        "row": positions[1][1]
+    }
 
-    old_position = positions[0]
-    new_position = positions[1]
-
-    if validate_move(old_position, new_position, board, player_color):
-        board = move_a_piece(board, old_position, new_position)
+    if validate_move(old_piece_position, new_piece_position, board, player_color):
+        board = move_a_piece(board, old_piece_position, new_piece_position)
         return board
     else:
         return False
@@ -339,8 +385,6 @@ def move_command(command, board, player_color):
 
 def computer_make_a_move(board, dificulty, player_color):
     if dificulty == "super-easy":
-        random_old_position = [random.randint(0, 7) for _ in range(2)]
-        random_new_position = [random.randint(0, 7) for _ in range(2)]
 
         if player_color == "white":
             computer_color = "black"
@@ -348,10 +392,16 @@ def computer_make_a_move(board, dificulty, player_color):
             computer_color = "white"
 
         while True:
-            random_old_position = [random.randint(0, 7) for _ in range(2)]
-            random_new_position = [random.randint(0, 7) for _ in range(2)]
-            if validate_move(old_position=random_old_position, new_position=random_new_position, board=board, player_color=computer_color):
-                board = move_a_piece(old_position=random_old_position, new_position=random_new_position, board=board)
+            old_piece_position = {
+                "column": random.randint(0, 7),
+                "row": random.randint(0, 7)
+            }
+            new_piece_position = {
+                "column": random.randint(0, 7),
+                "row": random.randint(0, 7)
+            }
+            if validate_move(old_piece_position=old_piece_position, new_piece_position=new_piece_position, board=board, player_color=computer_color):
+                board = move_a_piece(old_position=old_piece_position, new_position=new_piece_position, board=board)
                 break
         return board 
 
@@ -364,7 +414,7 @@ def new_game(print_format = "ascii", player_color = "white"):
     invalid = False
     dificulty = "super-easy"
     while game:
-        #os.system('cls' if os.name == 'nt' else 'clear')
+        os.system('cls' if os.name == 'nt' else 'clear')
         try:
             #color_theme = input("What color is your terminal?\n1.Dark\n2.Light")
             print_board(board, print_format, coordinates, color_theme)
@@ -488,8 +538,5 @@ def menu():
                 sys.exit(0)
     except KeyboardInterrupt:
             sys.exit(0)
-
-
-
 
 menu()
